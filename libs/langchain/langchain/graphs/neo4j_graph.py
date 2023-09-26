@@ -100,12 +100,12 @@ class Neo4jGraph(GraphStore):
         rel_properties = [el["output"] for el in self.query(rel_properties_query)]
         relationships = [el["output"] for el in self.query(rel_query)]
 
-        self.structured_schema = {
+        self._structured_schema = {
             "node_props": {el["labels"]: el["properties"] for el in node_properties},
             "rel_props": {el["type"]: el["properties"] for el in rel_properties},
             "relationships": relationships,
         }
-        self.schema = f"""
+        self._schema = f"""
         Node properties are the following:
         {node_properties}
         Relationship properties are the following:
