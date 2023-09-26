@@ -43,7 +43,7 @@ class FalkorDBGraph(GraphStore):
         self._graph = Graph(self._driver, database)
         self._schema: str = ""
         self._structured_schema: Dict[str, Any] = {}
-        
+
         try:
             self.refresh_schema()
         except Exception as e:
@@ -53,11 +53,11 @@ class FalkorDBGraph(GraphStore):
     def schema(self) -> str:
         """Returns the schema of the FalkorDB database"""
         return self._schema
-    
+
     @property
     def structured_schema(self) -> Dict[str, Any]:
         """Returns the structured schema of the Graph database"""
-        return self._structured_schema   
+        return self._structured_schema
 
     def refresh_schema(self) -> None:
         """Refreshes the schema of the FalkorDB database"""

@@ -17,7 +17,7 @@ class GraphStore:
     @abstractmethod
     def structured_schema(self) -> Dict[str, Any]:
         """Returns the structured schema of the Graph database"""
-        pass   
+        pass
 
     @abstractmethod
     def query(self, query: str, params: dict = {}) -> List[Dict[str, Any]]:
