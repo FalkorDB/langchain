@@ -48,7 +48,7 @@ class NebulaGraph:
         self.session_pool_size = session_pool_size
 
         self.session_pool = self._get_session_pool()
-        self.schema = ""
+        self._schema = ""
         # Set schema
         try:
             self.refresh_schema()
@@ -102,9 +102,9 @@ class NebulaGraph:
             logger.warning(f"Could not close session pool. Error: {e}")
 
     @property
-    def get_schema(self) -> str:
+    def schema(self) -> str:
         """Returns the schema of the NebulaGraph database"""
-        return self.schema
+        return self._schema
 
     def execute(self, query: str, params: Optional[dict] = None, retry: int = 0) -> Any:
         """Query NebulaGraph database."""
@@ -187,7 +187,7 @@ class NebulaGraph:
             if len(r) > 0:
                 relationships.append(r[0].cast())
 
-        self.schema = (
+        self._schema = (
             f"Node properties: {tags_schema}\n"
             f"Edge properties: {edge_types_schema}\n"
             f"Relationships: {relationships}\n"

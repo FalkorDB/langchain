@@ -31,4 +31,4 @@ class TestFalkorDB(unittest.TestCase):
         graph = FalkorDBGraph(database=self.graph, host=self.host, port=self.port)
 
         graph.refresh_schema()
-        self.assertNotEqual(graph.get_schema, "")
+        self.assertNotEqual(graph.schema, "")

@@ -87,4 +87,4 @@ class TestNebulaGraph(unittest.TestCase):
             self.session_pool_size,
         )
         nebula_graph.refresh_schema()
-        self.assertNotEqual(nebula_graph.get_schema, "")
+        self.assertNotEqual(nebula_graph.schema, "")

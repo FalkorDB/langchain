@@ -52,5 +52,5 @@ class TestKuzu(unittest.TestCase):
         )
         self.conn.execute("CREATE REL TABLE ActedIn (FROM Person TO Movie)")
         self.kuzu_graph.refresh_schema()
-        schema = self.kuzu_graph.get_schema
+        schema = self.kuzu_graph.schema
         self.assertEqual(schema, EXPECTED_SCHEMA)

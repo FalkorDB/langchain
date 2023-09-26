@@ -41,23 +41,40 @@ class FalkorDBGraph(GraphStore):
 
         self._driver = redis.Redis(host=host, port=port)
         self._graph = Graph(self._driver, database)
-
+        self._schema: str = ""
+        self._structured_schema: Dict[str, Any] = {}
+        
         try:
             self.refresh_schema()
         except Exception as e:
             raise ValueError(f"Could not refresh schema. Error: {e}")
 
     @property
-    def get_schema(self) -> str:
+    def schema(self) -> str:
         """Returns the schema of the FalkorDB database"""
-        return self.schema
+        return self._schema
+    
+    @property
+    def structured_schema(self) -> Dict[str, Any]:
+        """Returns the structured schema of the Graph database"""
+        return self._structured_schema   
 
     def refresh_schema(self) -> None:
         """Refreshes the schema of the FalkorDB database"""
-        self.schema = (
-            f"Node properties: {self.query(node_properties_query)}\n"
-            f"Relationships properties: {self.query(rel_properties_query)}\n"
-            f"Relationships: {self.query(rel_query)}\n"
+        node_properties = self.query(node_properties_query)
+        rel_properties = self.query(rel_properties_query)
+        relationships = self.query(rel_query)
+
+        self._structured_schema = {
+            "node_props": node_properties,
+            "rel_props": rel_properties,
+            "relationships": relationships,
+        }
+
+        self._schema = (
+            f"Node properties: {node_properties}\n"
+            f"Relationships properties: {rel_properties}\n"
+            f"Relationships: {relationships}\n"
         )
 
     def query(self, query: str, params: dict = {}) -> List[Dict[str, Any]]:

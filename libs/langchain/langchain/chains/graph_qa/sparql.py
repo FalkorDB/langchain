@@ -100,7 +100,7 @@ class GraphSparqlQAChain(Chain):
         _run_manager.on_text(intent, color="green", end="\n", verbose=self.verbose)
 
         generated_sparql = sparql_generation_chain.run(
-            {"prompt": prompt, "schema": self.graph.get_schema}, callbacks=callbacks
+            {"prompt": prompt, "schema": self.graph.schema}, callbacks=callbacks
         )
 
         _run_manager.on_text("Generated SPARQL:", end="\n", verbose=self.verbose)

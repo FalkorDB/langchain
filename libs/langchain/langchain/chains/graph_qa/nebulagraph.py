@@ -69,7 +69,7 @@ class NebulaGraphQAChain(Chain):
         question = inputs[self.input_key]
 
         generated_ngql = self.ngql_generation_chain.run(
-            {"question": question, "schema": self.graph.get_schema}, callbacks=callbacks
+            {"question": question, "schema": self.graph.schema}, callbacks=callbacks
         )
 
         _run_manager.on_text("Generated nGQL:", end="\n", verbose=self.verbose)

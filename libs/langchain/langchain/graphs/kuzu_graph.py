@@ -18,9 +18,9 @@ class KuzuGraph:
         self.refresh_schema()
 
     @property
-    def get_schema(self) -> str:
+    def schema(self) -> str:
         """Returns the schema of the Kùzu database"""
-        return self.schema
+        return self._schema
 
     def query(self, query: str, params: dict = {}) -> List[Dict[str, Any]]:
         """Query Kùzu database"""
@@ -83,7 +83,7 @@ class KuzuGraph:
                 )
             rel_properties.append(current_table_schema)
 
-        self.schema = (
+        self._schema = (
             f"Node properties: {node_properties}\n"
             f"Relationships properties: {rel_properties}\n"
             f"Relationships: {relationships}\n"

@@ -43,4 +43,4 @@ class TestHugeGraph(unittest.TestCase):
             self.username, self.password, self.address, self.port, self.graph
         )
         huge_graph.refresh_schema()
-        self.assertNotEqual(huge_graph.get_schema, "")
+        self.assertNotEqual(huge_graph.schema, "")
