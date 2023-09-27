@@ -173,15 +173,15 @@ class RdfGraph:
             raise AssertionError("The graph is empty.")
 
         # Set schema
-        self.schema = ""
+        self._schema = ""
         self.load_schema()
 
     @property
-    def get_schema(self) -> str:
+    def schema(self) -> str:
         """
         Returns the schema of the graph database.
         """
-        return self.schema
+        return self._schema
 
     def query(
         self,
@@ -261,16 +261,16 @@ class RdfGraph:
         if self.standard == "rdf":
             clss = self.query(cls_query_rdf)
             rels = self.query(rel_query_rdf)
-            self.schema = _rdf_s_schema(clss, rels)
+            self._schema = _rdf_s_schema(clss, rels)
         elif self.standard == "rdfs":
             clss = self.query(cls_query_rdfs)
             rels = self.query(rel_query_rdfs)
-            self.schema = _rdf_s_schema(clss, rels)
+            self._schema = _rdf_s_schema(clss, rels)
         elif self.standard == "owl":
             clss = self.query(cls_query_owl)
             ops = self.query(op_query_owl)
             dps = self.query(dp_query_owl)
-            self.schema = (
+            self._schema = (
                 f"In the following, each IRI is followed by the local name and "
                 f"optionally its description in parentheses. \n"
                 f"The OWL graph supports the following node types:\n"

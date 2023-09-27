@@ -1,5 +1,8 @@
 from typing import Any, Dict, List
 
+from langchain.graphs.graph_document import GraphDocument
+from langchain.graphs.graph_store import GraphStore
+
 node_properties_query = """
 MATCH (n)
 UNWIND labels(n) as l
@@ -20,7 +23,7 @@ RETURN DISTINCT "(:" + src + ")-[:" + type + "]->(:" + dst + ")" AS output
 """
 
 
-class FalkorDBGraph:
+class FalkorDBGraph(GraphStore):
     """FalkorDB wrapper for graph operations."""
 
     def __init__(
@@ -38,6 +41,8 @@ class FalkorDBGraph:
 
         self._driver = redis.Redis(host=host, port=port)
         self._graph = Graph(self._driver, database)
+        self._schema: str = ""
+        self._structured_schema: Dict[str, Any] = {}
 
         try:
             self.refresh_schema()
@@ -45,16 +50,31 @@ class FalkorDBGraph:
             raise ValueError(f"Could not refresh schema. Error: {e}")
 
     @property
-    def get_schema(self) -> str:
+    def schema(self) -> str:
         """Returns the schema of the FalkorDB database"""
-        return self.schema
+        return self._schema
+
+    @property
+    def structured_schema(self) -> Dict[str, Any]:
+        """Returns the structured schema of the Graph database"""
+        return self._structured_schema
 
     def refresh_schema(self) -> None:
         """Refreshes the schema of the FalkorDB database"""
-        self.schema = (
-            f"Node properties: {self.query(node_properties_query)}\n"
-            f"Relationships properties: {self.query(rel_properties_query)}\n"
-            f"Relationships: {self.query(rel_query)}\n"
+        node_properties = self.query(node_properties_query)
+        rel_properties = self.query(rel_properties_query)
+        relationships = self.query(rel_query)
+
+        self._structured_schema = {
+            "node_props": node_properties,
+            "rel_props": rel_properties,
+            "relationships": relationships,
+        }
+
+        self._schema = (
+            f"Node properties: {node_properties}\n"
+            f"Relationships properties: {rel_properties}\n"
+            f"Relationships: {relationships}\n"
         )
 
     def query(self, query: str, params: dict = {}) -> List[Dict[str, Any]]:
@@ -65,3 +85,48 @@ class FalkorDBGraph:
             return data.result_set
         except Exception as e:
             raise ValueError("Generated Cypher Statement is not valid\n" f"{e}")
+
+    def add_graph_documents(
+        self, graph_documents: List[GraphDocument], include_source: bool = False
+    ) -> None:
+        """
+        Take GraphDocument as input as uses it to construct a graph.
+        """
+        for document in graph_documents:
+            # Import nodes
+            for node in document.nodes:
+                props = " ".join(
+                    "SET n.{0}='{1}'".format(k, v.replace("'", "\\'"))
+                    if isinstance(v, str)
+                    else "SET n.{0}={1}".format(k, v)
+                    for k, v in node.properties.items()
+                )
+
+                self.query(
+                    (
+                        # f"{include_docs_query if include_source else ''}"
+                        f"MERGE (n:{node.type} {{id:'{node.id}'}}) "
+                        f"{props} "
+                        # f"{'MERGE (d)-[:MENTIONS]->(n) ' if include_source else ''}"
+                        "RETURN distinct 'done' AS result"
+                    )
+                )
+
+            # Import relationships
+            for rel in document.relationships:
+                props = " ".join(
+                    "SET r.{0}='{1}'".format(k, v.replace("'", "\\'"))
+                    if isinstance(v, str)
+                    else "SET r.{0}={1}".format(k, v)
+                    for k, v in rel.properties.items()
+                )
+
+                self.query(
+                    (
+                        f"MATCH (a:{rel.source.type} {{id:'{rel.source.id}'}}), "
+                        f"(b:{rel.target.type} {{id:'{rel.target.id}'}}) "
+                        f"MERGE (a)-[r:{(rel.type.replace(' ', '_').upper())}]->(b) "
+                        f"{props} "
+                        "RETURN distinct 'done' AS result"
+                    )
+                )

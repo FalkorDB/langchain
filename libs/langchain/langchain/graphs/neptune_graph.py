@@ -103,9 +103,9 @@ class NeptuneGraph:
             )
 
     @property
-    def get_schema(self) -> str:
+    def schema(self) -> str:
         """Returns the schema of the Neptune database"""
-        return self.schema
+        return self._schema
 
     def query(self, query: str, params: dict = {}) -> Dict[str, Any]:
         """Query Neptune database."""
@@ -229,7 +229,7 @@ class NeptuneGraph:
         node_properties = self._get_node_properties(n_labels, types)
         edge_properties = self._get_edge_properties(e_labels, types)
 
-        self.schema = f"""
+        self._schema = f"""
         Node properties are the following:
         {node_properties}
         Relationship properties are the following:

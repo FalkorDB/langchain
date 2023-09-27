@@ -29,7 +29,7 @@ class HugeGraph:
         self.client = PyHugeGraph(
             address, port, user=username, pwd=password, graph=graph
         )
-        self.schema = ""
+        self._schema = ""
         # Set schema
         try:
             self.refresh_schema()
@@ -37,9 +37,9 @@ class HugeGraph:
             raise ValueError(f"Could not refresh schema. Error: {e}")
 
     @property
-    def get_schema(self) -> str:
+    def schema(self) -> str:
         """Returns the schema of the HugeGraph database"""
-        return self.schema
+        return self._schema
 
     def refresh_schema(self) -> None:
         """
@@ -50,7 +50,7 @@ class HugeGraph:
         edge_schema = schema.getEdgeLabels()
         relationships = schema.getRelations()
 
-        self.schema = (
+        self._schema = (
             f"Node properties: {vertex_schema}\n"
             f"Edge properties: {edge_schema}\n"
             f"Relationships: {relationships}\n"

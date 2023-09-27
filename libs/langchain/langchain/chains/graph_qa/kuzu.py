@@ -71,7 +71,7 @@ class KuzuQAChain(Chain):
         question = inputs[self.input_key]
 
         generated_cypher = self.cypher_generation_chain.run(
-            {"question": question, "schema": self.graph.get_schema}, callbacks=callbacks
+            {"question": question, "schema": self.graph.schema}, callbacks=callbacks
         )
 
         _run_manager.on_text("Generated Cypher:", end="\n", verbose=self.verbose)
